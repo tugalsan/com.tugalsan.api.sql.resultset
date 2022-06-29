@@ -4,6 +4,7 @@ import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.string.server.*;
 import com.tugalsan.api.time.client.*;
+import com.tugalsan.api.unsafe.client.*;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.*;
@@ -98,7 +99,7 @@ public class TS_SQLResultSetUtils {
                     .filter(ci -> Objects.equals(name(resultSet, ci), fcn)).findAny().orElse(-1);
             if (result == -1) {
                 result = IntStream.range(0, size(resultSet))
-                    .filter(ci -> Objects.equals(label(resultSet, ci), fcn)).findAny().orElse(-1);
+                        .filter(ci -> Objects.equals(label(resultSet, ci), fcn)).findAny().orElse(-1);
             }
             return result;
         }
@@ -344,19 +345,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static String get(ResultSet resultSet, int ci) {
-            try {
-                return resultSet.getString(ci + 1);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getString(ci + 1));
         }
 
         public static String get(ResultSet resultSet, CharSequence columnName) {
-            try {
-                return resultSet.getString(columnName.toString());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getString(columnName.toString()));
         }
     }
 
