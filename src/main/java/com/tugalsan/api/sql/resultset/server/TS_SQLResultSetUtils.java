@@ -16,11 +16,7 @@ public class TS_SQLResultSetUtils {
     public static class Meta {
 
         public static ResultSetMetaData get(ResultSet resultSet) {
-            try {
-                return resultSet.getMetaData();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getMetaData());
         }
     }
 
@@ -109,27 +105,15 @@ public class TS_SQLResultSetUtils {
         }
 
         public static int size(ResultSet resultSet) {
-            try {
-                return Meta.get(resultSet).getColumnCount();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> Meta.get(resultSet).getColumnCount());
         }
 
         public static String name(ResultSet resultSet, int colIdx) {
-            try {
-                return Meta.get(resultSet).getColumnName(colIdx + 1);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> Meta.get(resultSet).getColumnName(colIdx + 1));
         }
 
         public static String label(ResultSet resultSet, int colIdx) {
-            try {
-                return Meta.get(resultSet).getColumnLabel(colIdx + 1);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> Meta.get(resultSet).getColumnLabel(colIdx + 1));
         }
     }
 
@@ -144,38 +128,22 @@ public class TS_SQLResultSetUtils {
         }
 
         public static void scrll(ResultSet resultSet, int ri) {
-            try {
-                if (ri < 0) {
-                    return;
-                }
-                resultSet.absolute(ri + 1);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (ri < 0) {
+                return;
             }
+            TGS_UnSafe.execute(() -> resultSet.absolute(ri + 1));
         }
 
         public static void scrllBottom(ResultSet resultSet) {
-            try {
-                resultSet.last();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            TGS_UnSafe.execute(() -> resultSet.last());
         }
 
         public static void scrllTop(ResultSet resultSet) {
-            try {
-                resultSet.first();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            TGS_UnSafe.execute(() -> resultSet.first());
         }
 
         public static int curIdx(ResultSet resultSet) {
-            try {
-                return resultSet.getRow() - 1;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getRow() - 1);
         }
 
         public static boolean isEmpty(ResultSet resultSet) {
@@ -204,19 +172,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static Object get(ResultSet resultSet, CharSequence columnName) {
-            try {
-                return resultSet.getObject(columnName.toString());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getObject(columnName.toString()));
         }
 
         public static Object get(ResultSet resultSet, int colIdx) {
-            try {
-                return resultSet.getObject(colIdx + 1);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getObject(colIdx + 1));
         }
     }
 
@@ -233,19 +193,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static byte[] get(ResultSet resultSet, CharSequence columnName) {
-            try {
-                return resultSet.getBytes(columnName.toString());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getBytes(columnName.toString()));
         }
 
         public static byte[] get(ResultSet resultSet, int colIdx) {
-            try {
-                return resultSet.getBytes(colIdx + 1);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getBytes(colIdx + 1));
         }
     }
 
@@ -297,19 +249,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static long get(ResultSet resultSet, int colIndex) {
-            try {
-                return resultSet.getLong(colIndex + 1);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getLong(colIndex + 1));
         }
 
         public static long get(ResultSet resultSet, CharSequence columnName) {
-            try {
-                return resultSet.getLong(columnName.toString());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return TGS_UnSafe.compile(() -> resultSet.getLong(columnName.toString()));
         }
     }
 
