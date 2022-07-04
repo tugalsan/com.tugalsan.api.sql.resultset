@@ -7,6 +7,7 @@ import com.tugalsan.api.sql.cell.client.*;
 import com.tugalsan.api.sql.col.typed.client.*;
 import com.tugalsan.api.string.client.*;
 import com.tugalsan.api.time.client.*;
+import com.tugalsan.api.unsafe.client.*;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.*;
@@ -105,11 +106,7 @@ public class TS_SQLResultSet {
         }
 
         public String command() {
-            try {
-                return resultSet.resultSet.getStatement().toString();
-            } catch (Exception e) {
-                return TGS_StringUtils.concat("Error on ", d.className, " ", e.getMessage());
-            }
+            return TGS_UnSafe.compile(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.concat("Error on ", d.className, " ", e.getMessage()));
         }
     }
 
