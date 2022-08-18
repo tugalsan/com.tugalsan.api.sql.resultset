@@ -332,12 +332,12 @@ public class TS_SQLResultSetUtils {
 
         public static TGS_Time get(ResultSet resultSet, CharSequence colName) {
             var val = Lng.get(resultSet, colName);
-            return TGS_Time.toDate(val);
+            return TGS_Time.ofDate(val);
         }
 
         public static TGS_Time get(ResultSet resultSet, int colIdx) {
             var val = Lng.get(resultSet, colIdx);
-            return TGS_Time.toDate(val);
+            return TGS_Time.ofDate(val);
         }
     }
 
@@ -355,12 +355,12 @@ public class TS_SQLResultSetUtils {
 
         public static TGS_Time get(ResultSet resultSet, CharSequence colName) {
             var val = Lng.get(resultSet, colName);
-            return TGS_Time.toTime(val);
+            return TGS_Time.ofDate(val);
         }
 
         public static TGS_Time get(ResultSet resultSet, int colIdx) {
             var val = Lng.get(resultSet, colIdx);
-            return TGS_Time.toTime(val);
+            return TGS_Time.ofDate(val);
         }
     }
 }
