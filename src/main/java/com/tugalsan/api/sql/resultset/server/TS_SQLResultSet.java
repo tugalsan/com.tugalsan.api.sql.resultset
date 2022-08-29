@@ -14,7 +14,7 @@ import java.util.stream.*;
 
 public class TS_SQLResultSet {
 
-    final private static TS_Log d = TS_Log.of(TS_SQLResultSet.class.getSimpleName());
+    final private static TS_Log d = TS_Log.of(TS_SQLResultSet.class);
 
     public static TS_SQLResultSet of(ResultSet resultSet) {
         return new TS_SQLResultSet(resultSet);

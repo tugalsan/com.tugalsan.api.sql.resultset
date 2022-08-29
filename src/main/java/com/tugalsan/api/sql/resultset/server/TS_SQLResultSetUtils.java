@@ -11,7 +11,7 @@ import java.util.stream.*;
 
 public class TS_SQLResultSetUtils {
 
-    final private static TS_Log d = TS_Log.of(TS_SQLResultSetUtils.class.getSimpleName());
+    final private static TS_Log d = TS_Log.of(TS_SQLResultSetUtils.class);
 
     public static class Meta {
 
