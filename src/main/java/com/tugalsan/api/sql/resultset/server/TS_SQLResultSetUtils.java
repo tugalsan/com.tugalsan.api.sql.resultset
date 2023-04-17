@@ -16,7 +16,7 @@ public class TS_SQLResultSetUtils {
     public static class Meta {
 
         public static ResultSetMetaData get(ResultSet resultSet) {
-            return TGS_UnSafe.compile(() -> resultSet.getMetaData());
+            return TGS_UnSafe.call(() -> resultSet.getMetaData());
         }
     }
 
@@ -105,15 +105,15 @@ public class TS_SQLResultSetUtils {
         }
 
         public static int size(ResultSet resultSet) {
-            return TGS_UnSafe.compile(() -> Meta.get(resultSet).getColumnCount());
+            return TGS_UnSafe.call(() -> Meta.get(resultSet).getColumnCount());
         }
 
         public static String name(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.compile(() -> Meta.get(resultSet).getColumnName(colIdx + 1));
+            return TGS_UnSafe.call(() -> Meta.get(resultSet).getColumnName(colIdx + 1));
         }
 
         public static String label(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.compile(() -> Meta.get(resultSet).getColumnLabel(colIdx + 1));
+            return TGS_UnSafe.call(() -> Meta.get(resultSet).getColumnLabel(colIdx + 1));
         }
     }
 
@@ -131,19 +131,19 @@ public class TS_SQLResultSetUtils {
             if (ri < 0) {
                 return;
             }
-            TGS_UnSafe.execute(() -> resultSet.absolute(ri + 1));
+            TGS_UnSafe.run(() -> resultSet.absolute(ri + 1));
         }
 
         public static void scrllBottom(ResultSet resultSet) {
-            TGS_UnSafe.execute(() -> resultSet.last());
+            TGS_UnSafe.run(() -> resultSet.last());
         }
 
         public static void scrllTop(ResultSet resultSet) {
-            TGS_UnSafe.execute(() -> resultSet.first());
+            TGS_UnSafe.run(() -> resultSet.first());
         }
 
         public static int curIdx(ResultSet resultSet) {
-            return TGS_UnSafe.compile(() -> resultSet.getRow() - 1);
+            return TGS_UnSafe.call(() -> resultSet.getRow() - 1);
         }
 
         public static boolean isEmpty(ResultSet resultSet) {
@@ -172,11 +172,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static Object get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.compile(() -> resultSet.getObject(columnName.toString()));
+            return TGS_UnSafe.call(() -> resultSet.getObject(columnName.toString()));
         }
 
         public static Object get(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.compile(() -> resultSet.getObject(colIdx + 1));
+            return TGS_UnSafe.call(() -> resultSet.getObject(colIdx + 1));
         }
     }
 
@@ -193,11 +193,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static byte[] get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.compile(() -> resultSet.getBytes(columnName.toString()));
+            return TGS_UnSafe.call(() -> resultSet.getBytes(columnName.toString()));
         }
 
         public static byte[] get(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.compile(() -> resultSet.getBytes(colIdx + 1));
+            return TGS_UnSafe.call(() -> resultSet.getBytes(colIdx + 1));
         }
     }
 
@@ -249,11 +249,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static long get(ResultSet resultSet, int colIndex) {
-            return TGS_UnSafe.compile(() -> resultSet.getLong(colIndex + 1));
+            return TGS_UnSafe.call(() -> resultSet.getLong(colIndex + 1));
         }
 
         public static long get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.compile(() -> resultSet.getLong(columnName.toString()));
+            return TGS_UnSafe.call(() -> resultSet.getLong(columnName.toString()));
         }
     }
 
@@ -289,11 +289,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static String get(ResultSet resultSet, int ci) {
-            return TGS_UnSafe.compile(() -> resultSet.getString(ci + 1));
+            return TGS_UnSafe.call(() -> resultSet.getString(ci + 1));
         }
 
         public static String get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.compile(() -> resultSet.getString(columnName.toString()));
+            return TGS_UnSafe.call(() -> resultSet.getString(columnName.toString()));
         }
     }
 

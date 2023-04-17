@@ -1,6 +1,6 @@
 package com.tugalsan.api.sql.resultset.server;
 
-import com.tugalsan.api.executable.client.*;
+import com.tugalsan.api.runnable.client.*;
 import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.sql.cell.client.*;
@@ -53,42 +53,42 @@ public class TS_SQLResultSet {
     final public Time time;
     final public Obj obj;
 
-    public void walkCols(TGS_ExecutableType1<TS_SQLResultSet> onEmpty, TGS_ExecutableType1<Integer> ci) {
+    public void walkCols(TGS_RunnableType1<TS_SQLResultSet> onEmpty, TGS_RunnableType1<Integer> ci) {
         if (col.isEmpty()) {
             if (onEmpty != null) {
-                onEmpty.execute(this);
+                onEmpty.run(this);
             }
             return;
         }
         IntStream.range(0, col.size()).forEachOrdered(idx_ci -> {
-            ci.execute(idx_ci);
+            ci.run(idx_ci);
         });
     }
 
-    public void walkRows(TGS_ExecutableType1<TS_SQLResultSet> onEmpty, TGS_ExecutableType1<Integer> ri) {
+    public void walkRows(TGS_RunnableType1<TS_SQLResultSet> onEmpty, TGS_RunnableType1<Integer> ri) {
         if (row.isEmpty()) {
             if (onEmpty != null) {
-                onEmpty.execute(this);
+                onEmpty.run(this);
             }
             return;
         }
         IntStream.range(0, row.size()).forEachOrdered(idx_ri -> {
             row.scrll(idx_ri);
-            ri.execute(idx_ri);
+            ri.run(idx_ri);
         });
     }
 
-    public void walkCells(TGS_ExecutableType1<TS_SQLResultSet> onEmpty, TGS_ExecutableType2<Integer, Integer> ri_ci) {
+    public void walkCells(TGS_RunnableType1<TS_SQLResultSet> onEmpty, TGS_RunnableType2<Integer, Integer> ri_ci) {
         if (row.isEmpty()) {
             if (onEmpty != null) {
-                onEmpty.execute(this);
+                onEmpty.run(this);
             }
             return;
         }
         IntStream.range(0, row.size()).forEachOrdered(ri -> {
             row.scrll(ri);
             IntStream.range(0, col.size()).forEachOrdered(ci -> {
-                ri_ci.execute(ri, ci);
+                ri_ci.run(ri, ci);
             });
         });
     }
@@ -106,7 +106,7 @@ public class TS_SQLResultSet {
         }
 
         public String command() {
-            return TGS_UnSafe.compile(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.concat("Error on ", d.className, " ", e.getMessage()));
+            return TGS_UnSafe.call(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.concat("Error on ", d.className, " ", e.getMessage()));
         }
     }
 
