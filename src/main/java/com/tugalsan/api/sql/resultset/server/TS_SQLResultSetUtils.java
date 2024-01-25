@@ -45,7 +45,7 @@ public class TS_SQLResultSetUtils {
         }
 
         private static String row(ResultSet rs, int fontsize) {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.append("<tr>");
             IntStream.range(0, Row.size(rs)).forEachOrdered(i -> {
                 sb.append(col(rs, fontsize, i));
