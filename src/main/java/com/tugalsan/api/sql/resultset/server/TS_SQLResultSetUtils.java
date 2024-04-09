@@ -4,9 +4,11 @@ import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.string.server.*;
 import com.tugalsan.api.time.client.*;
-import com.tugalsan.api.unsafe.client.*;
+import com.tugalsan.api.union.client.TGS_Union;
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.*;
 
 public class TS_SQLResultSetUtils {
@@ -15,8 +17,12 @@ public class TS_SQLResultSetUtils {
 
     public static class Meta {
 
-        public static ResultSetMetaData get(ResultSet resultSet) {
-            return TGS_UnSafe.call(() -> resultSet.getMetaData());
+        public static TGS_Union<ResultSetMetaData> get(ResultSet resultSet) {
+            try {
+                return TGS_Union.of(resultSet.getMetaData());
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
+            }
         }
     }
 
@@ -54,8 +60,12 @@ public class TS_SQLResultSetUtils {
             return sb.toString();
         }
 
-        private static String col(ResultSet rs, int fontsize, int columnIndex) {
-            return col(fontsize, Col.name(rs, columnIndex));
+        private static TGS_Union<String> col(ResultSet rs, int fontsize, int columnIndex) {
+            var u = Col.name(rs, columnIndex);
+            if (u.isError()) {
+                return TGS_Union.ofExcuse(u.excuse());
+            }
+            return TGS_Union.of(col(fontsize, u.value()));
         }
 
         private static String col(int fontsize, CharSequence value) {
@@ -79,41 +89,77 @@ public class TS_SQLResultSetUtils {
             return val;
         }
 
-        public static boolean valid(ResultSet resultSet, CharSequence columnName) {
-            var val = getIdx(resultSet, columnName) != -1;
+        public static TGS_Union<Boolean> valid(ResultSet resultSet, CharSequence columnName) {
+            var u = getIdx(resultSet, columnName);
+            if (u.isError()) {
+                return TGS_Union.ofExcuse(u.excuse());
+            }
+            var val = u.value() != -1;
             if (!val) {
                 d.ce("Col.valid.false", columnName);
             }
-            return val;
+            return TGS_Union.of(val);
         }
 
-        public static int getIdx(ResultSet resultSet, CharSequence columnName) {
+        public static TGS_Union<Integer> getIdx(ResultSet resultSet, CharSequence columnName) {
             var cn = columnName.toString();
             var idx = cn.indexOf(".");
             var fcn = idx == -1 ? cn : cn.substring(idx + 1);
-            var result = IntStream.range(0, size(resultSet))
+            var u = size(resultSet);
+            if (u.isError()) {
+                return TGS_Union.ofExcuse(u.excuse());
+            }
+            var result = IntStream.range(0, u.value())
                     .filter(ci -> Objects.equals(name(resultSet, ci), fcn)).findAny().orElse(-1);
             if (result == -1) {
-                result = IntStream.range(0, size(resultSet))
+                result = IntStream.range(0, u.value())
                         .filter(ci -> Objects.equals(label(resultSet, ci), fcn)).findAny().orElse(-1);
             }
-            return result;
+            return TGS_Union.of(result);
         }
 
-        public static boolean isEmpty(ResultSet resultSet) {
-            return size(resultSet) == 0;
+        public static TGS_Union<Boolean> isEmpty(ResultSet resultSet) {
+            var u = size(resultSet);
+            if (u.isError()) {
+                return TGS_Union.ofExcuse(u.excuse());
+            }
+            return TGS_Union.of(u.value() == 0);
         }
 
-        public static int size(ResultSet resultSet) {
-            return TGS_UnSafe.call(() -> Meta.get(resultSet).getColumnCount());
+        public static TGS_Union<Integer> size(ResultSet resultSet) {
+            var u = Meta.get(resultSet);
+            if (u.isError()) {
+                return TGS_Union.ofExcuse(u.excuse());
+            }
+            try {
+                return TGS_Union.of(u.value().getColumnCount());
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
+            }
         }
 
-        public static String name(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.call(() -> Meta.get(resultSet).getColumnName(colIdx + 1));
+        public static TGS_Union<String> name(ResultSet resultSet, int colIdx) {
+            var u = Meta.get(resultSet);
+            if (u.isError()) {
+                return TGS_Union.ofExcuse(u.excuse());
+            }
+            try {
+                return TGS_Union.of(u.value().getColumnName(colIdx + 1));
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
+            }
         }
 
-        public static String label(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.call(() -> Meta.get(resultSet).getColumnLabel(colIdx + 1));
+        public static TGS_Union<String> label(ResultSet resultSet, int colIdx) {
+            var u = Meta.get(resultSet);
+            if (u.isError()) {
+                return TGS_Union.ofExcuse(u.excuse());
+            }
+            try {
+                return TGS_Union.of(u.value().getColumnLabel(colIdx + 1));
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
+            }
         }
     }
 
@@ -127,23 +173,28 @@ public class TS_SQLResultSetUtils {
             return val;
         }
 
-        public static void scrll(ResultSet resultSet, int ri) {
-            if (ri < 0) {
-                return;
+        public static TGS_Union<Boolean> scrll(ResultSet resultSet, int ri) {
+            try {
+                if (ri < 0) {
+                    return TGS_Union.ofExcuse(new IllegalArgumentException("ri < 0 -> ri:" + ri));
+                }
+                resultSet.absolute(ri + 1);
+                return TGS_Union.of(true);
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
             }
-            TGS_UnSafe.run(() -> resultSet.absolute(ri + 1));
         }
 
         public static void scrllBottom(ResultSet resultSet) {
-            TGS_UnSafe.run(() -> resultSet.last());
+            resultSet.last();
         }
 
         public static void scrllTop(ResultSet resultSet) {
-            TGS_UnSafe.run(() -> resultSet.first());
+            resultSet.first();
         }
 
         public static int curIdx(ResultSet resultSet) {
-            return TGS_UnSafe.call(() -> resultSet.getRow() - 1);
+            return resultSet.getRow() - 1;
         }
 
         public static boolean isEmpty(ResultSet resultSet) {
@@ -172,11 +223,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static Object get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.call(() -> resultSet.getObject(columnName.toString()));
+            return resultSet.getObject(columnName.toString());
         }
 
         public static Object get(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.call(() -> resultSet.getObject(colIdx + 1));
+            return resultSet.getObject(colIdx + 1);
         }
     }
 
@@ -193,11 +244,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static byte[] get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.call(() -> resultSet.getBytes(columnName.toString()));
+            return resultSet.getBytes(columnName.toString());
         }
 
         public static byte[] get(ResultSet resultSet, int colIdx) {
-            return TGS_UnSafe.call(() -> resultSet.getBytes(colIdx + 1));
+            return resultSet.getBytes(colIdx + 1);
         }
     }
 
@@ -249,11 +300,11 @@ public class TS_SQLResultSetUtils {
         }
 
         public static long get(ResultSet resultSet, int colIndex) {
-            return TGS_UnSafe.call(() -> resultSet.getLong(colIndex + 1));
+            return resultSet.getLong(colIndex + 1);
         }
 
         public static long get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.call(() -> resultSet.getLong(columnName.toString()));
+            return resultSet.getLong(columnName.toString());
         }
     }
 
@@ -278,22 +329,30 @@ public class TS_SQLResultSetUtils {
 
     public static class Str {
 
-        public static String get(ResultSet resultSet, int ri, int ci) {
+        public static TGS_Union<String> get(ResultSet resultSet, int ri, int ci) {
             Row.scrll(resultSet, ri);
             return get(resultSet, ci);
         }
 
-        public static String get(ResultSet resultSet, int rowIndex, CharSequence columnName) {
+        public static TGS_Union<String> get(ResultSet resultSet, int rowIndex, CharSequence columnName) {
             Row.scrll(resultSet, rowIndex);
             return get(resultSet, columnName);
         }
 
-        public static String get(ResultSet resultSet, int ci) {
-            return TGS_UnSafe.call(() -> resultSet.getString(ci + 1));
+        public static TGS_Union<String> get(ResultSet resultSet, int ci) {
+            try {
+                return TGS_Union.of(resultSet.getString(ci + 1));
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
+            }
         }
 
-        public static String get(ResultSet resultSet, CharSequence columnName) {
-            return TGS_UnSafe.call(() -> resultSet.getString(columnName.toString()));
+        public static TGS_Union<String> get(ResultSet resultSet, CharSequence columnName) {
+            try {
+                return TGS_Union.of(resultSet.getString(columnName.toString()));
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
+            }
         }
     }
 

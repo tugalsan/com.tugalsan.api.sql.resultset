@@ -5,9 +5,8 @@ import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.sql.cell.client.*;
 import com.tugalsan.api.sql.col.typed.client.*;
-import com.tugalsan.api.string.client.*;
 import com.tugalsan.api.time.client.*;
-import com.tugalsan.api.unsafe.client.*;
+import com.tugalsan.api.union.client.TGS_Union;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.*;
@@ -105,8 +104,12 @@ public class TS_SQLResultSet {
             return TS_SQLResultSetUtils.Meta.get(resultSet.resultSet);
         }
 
-        public String command() {
-            return TGS_UnSafe.call(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.concat("Error on ", d.className, " ", e.getMessage()));
+        public TGS_Union<String> command() {
+            try {
+                return TGS_Union.of(resultSet.resultSet.getStatement().toString());
+            } catch (SQLException ex) {
+                return TGS_Union.ofExcuse(ex);
+            }
         }
     }
 
