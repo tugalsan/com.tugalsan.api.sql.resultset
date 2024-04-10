@@ -380,7 +380,7 @@ public class TS_SQLResultSet {
             }
             var u_col_valid = TS_SQLResultSetUtils.Col.valid(colIdx, u_col_size.value());
             if (!u_col_valid) {
-                return TGS_UnionExcuse.ofExcuse(d.className, "BlobStr.get", "col is not valid");
+                return TGS_UnionExcuse.ofExcuse(d.className, "Col.name", "col is not valid");
             }
             return TS_SQLResultSetUtils.Col.name(resultSet.resultSet, colIdx);
         }
@@ -392,7 +392,7 @@ public class TS_SQLResultSet {
             }
             var u_col_valid = TS_SQLResultSetUtils.Col.valid(colIdx, u_col_size.value());
             if (!u_col_valid) {
-                return TGS_UnionExcuse.ofExcuse(d.className, "BlobStr.get", "col is not valid");
+                return TGS_UnionExcuse.ofExcuse(d.className, "Col.label", "col is not valid");
             }
             return TS_SQLResultSetUtils.Col.label(resultSet.resultSet, colIdx);
         }
@@ -413,7 +413,7 @@ public class TS_SQLResultSet {
             }
             var u_row_valid = TS_SQLResultSetUtils.Row.valid(rowIndex, u_row_size.value());
             if (!u_row_valid) {
-                return TGS_UnionExcuseVoid.ofExcuse(d.className, "BlobStr.get", "row is not valid");
+                return TGS_UnionExcuseVoid.ofExcuse(d.className, "Row.scrll", "row is not valid");
             }
             return TS_SQLResultSetUtils.Row.scrll(resultSet.resultSet, rowIndex);
         }
@@ -464,23 +464,38 @@ public class TS_SQLResultSet {
                 }
                 var ct = TGS_SQLColTyped.of(u_col_name.value());
                 if (ct.familyLng()) {
-                    row.add(new TGS_SQLCellLNG(rs.lng.get(ci)));
+                    var u_lng_get = rs.lng.get(ci);
+                    if (u_lng_get.isExcuse()) {
+                        return u_lng_get.toExcuse();
+                    }
+                    row.add(new TGS_SQLCellLNG(u_lng_get.value()));
                     continue;
                 }
                 if (ct.familyStr()) {
-                    row.add(new TGS_SQLCellSTR(rs.str.get(ci)));
+                    var u_str_get = rs.str.get(ci);
+                    if (u_str_get.isExcuse()){
+                        return u_str_get.toExcuse();
+                    }
+                    row.add(new TGS_SQLCellSTR(u_str_get.value()));
                     continue;
                 }
                 if (ct.typeBytesStr()) {
-                    row.add(new TGS_SQLCellBYTESSTR(rs.bytesStr.get(ci)));
+                    var u_bytesStr_get = rs.bytesStr.get(ci);
+                    if (u_bytesStr_get.isExcuse()) {
+                        return u_bytesStr_get.toExcuse();
+                    }
+                    row.add(new TGS_SQLCellBYTESSTR(u_bytesStr_get.value()));
                     continue;
                 }
                 if (ct.familyBytes()) {
-                    row.add(skipTypeByte ? new TGS_SQLCellBYTES() : new TGS_SQLCellBYTES(rs.bytes.get(ci)));
+                    var u_bytes_get = rs.bytes.get(ci);
+                    if (u_bytes_get.isExcuse()) {
+                        return u_bytes_get.toExcuse();
+                    }
+                    row.add(skipTypeByte ? new TGS_SQLCellBYTES() : new TGS_SQLCellBYTES(u_bytes_get.value()));
                     continue;
                 }
             }
-            d.ci("Row.get", "#6");
             return TGS_UnionExcuse.of(row);
         }
     }
@@ -493,20 +508,31 @@ public class TS_SQLResultSet {
         }
         final private TS_SQLResultSet resultSet;
 
-        public List<List<TGS_SQLCellAbstract>> get() {
+        public TGS_UnionExcuse<List<List<TGS_SQLCellAbstract>>> get() {
             return get(false);
         }
 
-        public List<List<TGS_SQLCellAbstract>> get(boolean skipTypeBytes) {
+        public TGS_UnionExcuse<List<List<TGS_SQLCellAbstract>>> get(boolean skipTypeBytes) {
             List<List<TGS_SQLCellAbstract>> table = TGS_ListUtils.of();
-            if (resultSet.row.isEmpty()) {
-                return table;
+            var u_empty = resultSet.row.isEmpty();
+            if (u_empty.isExcuse()) {
+                return u_empty.toExcuse();
             }
-            var size = resultSet.row.size();
-            IntStream.range(0, size).forEachOrdered(ri -> {
-                table.add(resultSet.row.get(ri, skipTypeBytes));
-            });
-            return table;
+            if (u_empty.value()) {
+                return TGS_UnionExcuse.of(table);
+            }
+            var u_row_size = resultSet.row.size();
+            if (u_row_size.isExcuse()) {
+                return u_empty.toExcuse();
+            }
+            for (var ri = 0; ri < u_row_size.value(); ri++) {
+                var u_row = resultSet.row.get(ri, skipTypeBytes);
+                if (u_row.isExcuse()) {
+                    return u_row.toExcuse();
+                }
+                table.add(u_row.value());
+            }
+            return TGS_UnionExcuse.of(table);
         }
 
     }
@@ -519,30 +545,58 @@ public class TS_SQLResultSet {
         }
         final private TS_SQLResultSet resultSet;
 
-        public Long get(int rowIndex, CharSequence columnName) {
-            if (!TS_SQLResultSetUtils.Row.valid(rowIndex, resultSet.row.size()) || !TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName)) {
-                return null;
+        public TGS_UnionExcuse<Long> get(int rowIndex, CharSequence columnName) {
+            var u_row_size = resultSet.row.size();
+            if (u_row_size.isExcuse()) {
+                return u_row_size.toExcuse();
+            }
+            var rowValid = TS_SQLResultSetUtils.Row.valid(rowIndex, u_row_size.value());
+            if (!rowValid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Lng.get", "row is not valid");
+            }
+            var u_colValid = TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName);
+            if (u_colValid.isExcuse()) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Lng.get", "col is not valid");
             }
             return TS_SQLResultSetUtils.Lng.get(resultSet.resultSet, rowIndex, columnName);
         }
 
-        public Long get(int rowIndex, int colIndex) {
-            if (!TS_SQLResultSetUtils.Row.valid(rowIndex, resultSet.row.size()) || !TS_SQLResultSetUtils.Col.valid(colIndex, resultSet.col.size())) {
-                return null;
+        public TGS_UnionExcuse<Long> get(int rowIndex, int colIndex) {
+            var u_row_size = resultSet.row.size();
+            if (u_row_size.isExcuse()) {
+                return u_row_size.toExcuse();
+            }
+            var u_row_valid = TS_SQLResultSetUtils.Row.valid(rowIndex, u_row_size.value());
+            if (!u_row_valid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Lng.get", "row is not valid");
+            }
+            var u_col_size = resultSet.col.size();
+            if (u_col_size.isExcuse()) {
+                return u_col_size.toExcuse();
+            }
+            var col_valid = TS_SQLResultSetUtils.Col.valid(colIndex, u_col_size.value());
+            if (!col_valid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Lng.get", "col is not valid");
             }
             return TS_SQLResultSetUtils.Lng.get(resultSet.resultSet, rowIndex, colIndex);
         }
 
-        public Long get(int colIndex) {
-            if (!TS_SQLResultSetUtils.Col.valid(colIndex, resultSet.col.size())) {
-                return null;
+        public TGS_UnionExcuse<Long> get(int colIdx) {
+            var u_col_size = resultSet.col.size();
+            if (u_col_size.isExcuse()) {
+                return u_col_size.toExcuse();
             }
-            return TS_SQLResultSetUtils.Lng.get(resultSet.resultSet, colIndex);
+            var u_col_valid = TS_SQLResultSetUtils.Col.valid(colIdx, u_col_size.value());
+            if (!u_col_valid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Lng.get", "col is not valid");
+            }
+            return TS_SQLResultSetUtils.Lng.get(resultSet.resultSet, colIdx);
         }
 
-        public Long get(CharSequence columnName) {
-            if (!TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName)) {
-                return null;
+        public TGS_UnionExcuse<Long> get(CharSequence columnName) {
+            var u_col_valid = TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName);
+            if (u_col_valid.isExcuse()) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Lng.get", "col is not valid");
             }
             return TS_SQLResultSetUtils.Lng.get(resultSet.resultSet, columnName);
         }
@@ -556,16 +610,22 @@ public class TS_SQLResultSet {
         }
         final private TS_SQLResultSet resultSet;
 
-        public List<Long> get(int colIndex) {
-            if (!TS_SQLResultSetUtils.Col.valid(colIndex, resultSet.col.size())) {
-                return null;
+        public TGS_UnionExcuse<List<Long>> get(int colIdx) {
+            var u_col_size = resultSet.col.size();
+            if (u_col_size.isExcuse()) {
+                return u_col_size.toExcuse();
             }
-            return TS_SQLResultSetUtils.LngArr.get(resultSet.resultSet, colIndex);
+            var col_valid = TS_SQLResultSetUtils.Col.valid(colIdx, u_col_size.value());
+            if (!col_valid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "LngArr.get", "col is not valid");
+            }
+            return TS_SQLResultSetUtils.LngArr.get(resultSet.resultSet, colIdx);
         }
 
-        public List<Long> get(CharSequence columnName) {
-            if (!TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName)) {
-                return null;
+        public TGS_UnionExcuse<List<Long>> get(CharSequence columnName) {
+            var u_col_valid = TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName);
+            if (u_col_valid.isExcuse()) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "LngArr.get", "col is not valid");
             }
             return TS_SQLResultSetUtils.LngArr.get(resultSet.resultSet, columnName);
         }
@@ -586,32 +646,51 @@ public class TS_SQLResultSet {
             }
             var row_valid = TS_SQLResultSetUtils.Row.valid(rowIndex, u_row_size.value());
             if (!row_valid) {
-                return TGS_UnionExcuse.ofExcuse(d.className, "Date.get", "row is not valid");
+                return TGS_UnionExcuse.ofExcuse(d.className, "Str.get", "row is not valid");
             }
             var u_col_valid = TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName);
             if (u_col_valid.isExcuse()) {
-                return TGS_UnionExcuse.ofExcuse(d.className, "Date.get", "col is not valid");
+                return TGS_UnionExcuse.ofExcuse(d.className, "Str.get", "col is not valid");
             }
             return TS_SQLResultSetUtils.Str.get(resultSet.resultSet, rowIndex, columnName);
         }
 
-        public String get(int rowIndex, int colIndex) {
-            if (!TS_SQLResultSetUtils.Row.valid(rowIndex, resultSet.row.size()) || !TS_SQLResultSetUtils.Col.valid(colIndex, resultSet.col.size())) {
-                return null;
+        public TGS_UnionExcuse<String> get(int rowIndex, int colIndex) {
+            var u_row_size = resultSet.row.size();
+            if (u_row_size.isExcuse()) {
+                return u_row_size.toExcuse();
+            }
+            var u_row_valid = TS_SQLResultSetUtils.Row.valid(rowIndex, u_row_size.value());
+            if (!u_row_valid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Str.get", "row is not valid");
+            }
+            var u_col_size = resultSet.col.size();
+            if (u_col_size.isExcuse()) {
+                return u_col_size.toExcuse();
+            }
+            var col_valid = TS_SQLResultSetUtils.Col.valid(colIndex, u_col_size.value());
+            if (!col_valid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Str.get", "col is not valid");
             }
             return TS_SQLResultSetUtils.Str.get(resultSet.resultSet, rowIndex, colIndex);
         }
 
-        public String get(int colIndex) {
-            if (!TS_SQLResultSetUtils.Col.valid(colIndex, resultSet.col.size())) {
-                return null;
+        public TGS_UnionExcuse<String> get(int colIdx) {
+            var u_col_size = resultSet.col.size();
+            if (u_col_size.isExcuse()) {
+                return u_col_size.toExcuse();
             }
-            return TS_SQLResultSetUtils.Str.get(resultSet.resultSet, colIndex);
+            var u_col_valid = TS_SQLResultSetUtils.Col.valid(colIdx, u_col_size.value());
+            if (!u_col_valid) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Str.get", "col is not valid");
+            }
+            return TS_SQLResultSetUtils.Str.get(resultSet.resultSet, colIdx);
         }
 
-        public String get(CharSequence columnName) {
-            if (!TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName)) {
-                return null;
+        public TGS_UnionExcuse<String> get(CharSequence columnName) {
+            var u_col_valid = TS_SQLResultSetUtils.Col.valid(resultSet.resultSet, columnName);
+            if (u_col_valid.isExcuse()) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "Str.get", "col is not valid");
             }
             return TS_SQLResultSetUtils.Str.get(resultSet.resultSet, columnName);
         }
