@@ -5,6 +5,7 @@ import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.string.server.*;
 import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.union.client.TGS_Union;
+import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -62,7 +63,7 @@ public class TS_SQLResultSetUtils {
 
         private static TGS_Union<String> col(ResultSet rs, int fontsize, int columnIndex) {
             var u = Col.name(rs, columnIndex);
-            if (u.isError()) {
+            if (u.isExcuse()) {
                 return TGS_Union.ofExcuse(u.excuse());
             }
             return TGS_Union.of(col(fontsize, u.value()));
@@ -89,16 +90,12 @@ public class TS_SQLResultSetUtils {
             return val;
         }
 
-        public static TGS_Union<Boolean> valid(ResultSet resultSet, CharSequence columnName) {
+        public static TGS_UnionExcuse valid(ResultSet resultSet, CharSequence columnName) {
             var u = getIdx(resultSet, columnName);
-            if (u.isError()) {
-                return TGS_Union.ofExcuse(u.excuse());
+            if (u.isExcuse()) {
+                return TGS_UnionExcuse.ofExcuse(u.excuse());
             }
-            var val = u.value() != -1;
-            if (!val) {
-                d.ce("Col.valid.false", columnName);
-            }
-            return TGS_Union.of(val);
+            return TGS_UnionExcuse.ofVoid();
         }
 
         public static TGS_Union<Integer> getIdx(ResultSet resultSet, CharSequence columnName) {
@@ -106,7 +103,7 @@ public class TS_SQLResultSetUtils {
             var idx = cn.indexOf(".");
             var fcn = idx == -1 ? cn : cn.substring(idx + 1);
             var u = size(resultSet);
-            if (u.isError()) {
+            if (u.isExcuse()) {
                 return TGS_Union.ofExcuse(u.excuse());
             }
             var result = IntStream.range(0, u.value())
@@ -115,12 +112,15 @@ public class TS_SQLResultSetUtils {
                 result = IntStream.range(0, u.value())
                         .filter(ci -> Objects.equals(label(resultSet, ci), fcn)).findAny().orElse(-1);
             }
+            if (result == -1) {
+                return TGS_Union.ofExcuse(d.className, "getIdx", "result is -1");
+            }
             return TGS_Union.of(result);
         }
 
         public static TGS_Union<Boolean> isEmpty(ResultSet resultSet) {
             var u = size(resultSet);
-            if (u.isError()) {
+            if (u.isExcuse()) {
                 return TGS_Union.ofExcuse(u.excuse());
             }
             return TGS_Union.of(u.value() == 0);
@@ -128,7 +128,7 @@ public class TS_SQLResultSetUtils {
 
         public static TGS_Union<Integer> size(ResultSet resultSet) {
             var u = Meta.get(resultSet);
-            if (u.isError()) {
+            if (u.isExcuse()) {
                 return TGS_Union.ofExcuse(u.excuse());
             }
             try {
@@ -140,7 +140,7 @@ public class TS_SQLResultSetUtils {
 
         public static TGS_Union<String> name(ResultSet resultSet, int colIdx) {
             var u = Meta.get(resultSet);
-            if (u.isError()) {
+            if (u.isExcuse()) {
                 return TGS_Union.ofExcuse(u.excuse());
             }
             try {
@@ -152,7 +152,7 @@ public class TS_SQLResultSetUtils {
 
         public static TGS_Union<String> label(ResultSet resultSet, int colIdx) {
             var u = Meta.get(resultSet);
-            if (u.isError()) {
+            if (u.isExcuse()) {
                 return TGS_Union.ofExcuse(u.excuse());
             }
             try {
@@ -173,20 +173,24 @@ public class TS_SQLResultSetUtils {
             return val;
         }
 
-        public static TGS_Union<Boolean> scrll(ResultSet resultSet, int ri) {
+        public static TGS_UnionExcuse scrll(ResultSet resultSet, int ri) {
             try {
                 if (ri < 0) {
-                    return TGS_Union.ofExcuse(new IllegalArgumentException("ri < 0 -> ri:" + ri));
+                    return TGS_UnionExcuse.ofExcuse(new IllegalArgumentException("ri < 0 -> ri:" + ri));
                 }
                 resultSet.absolute(ri + 1);
-                return TGS_Union.of(true);
+                return TGS_UnionExcuse.ofVoid();
             } catch (SQLException ex) {
-                return TGS_Union.ofExcuse(ex);
+                return TGS_UnionExcuse.ofExcuse(ex);
             }
         }
 
         public static void scrllBottom(ResultSet resultSet) {
-            resultSet.last();
+            try {
+                resultSet.last();
+            } catch (SQLException ex) {
+                Logger.getLogger(TS_SQLResultSetUtils.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         public static void scrllTop(ResultSet resultSet) {
