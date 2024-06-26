@@ -2,7 +2,7 @@ package com.tugalsan.api.sql.resultset.server;
 
 import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
-import com.tugalsan.api.string.server.*;
+import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.unsafe.client.*;
 import java.sql.*;
@@ -208,7 +208,7 @@ public class TS_SQLResultSetUtils {
             if (valBytes == null) {
                 return "";
             }
-            return TS_StringUtils.toString(valBytes);
+            return TGS_StringUtils.jre().toString(valBytes);
         }
 
         public static String get(ResultSet resultSet, int rowIndex, int colIndex) {
@@ -216,7 +216,7 @@ public class TS_SQLResultSetUtils {
             if (valBytes == null) {
                 return "";
             }
-            return TS_StringUtils.toString(valBytes);
+            return TGS_StringUtils.jre().toString(valBytes);
         }
 
         public static String get(ResultSet resultSet, CharSequence columnName) {
@@ -224,7 +224,7 @@ public class TS_SQLResultSetUtils {
             if (valBytes == null) {
                 return "";
             }
-            return TS_StringUtils.toString(valBytes);
+            return TGS_StringUtils.jre().toString(valBytes);
         }
 
         public static String get(ResultSet resultSet, int colIdx) {
@@ -232,7 +232,7 @@ public class TS_SQLResultSetUtils {
             if (valBytes == null) {
                 return "";
             }
-            return TS_StringUtils.toString(valBytes);
+            return TGS_StringUtils.jre().toString(valBytes);
         }
     }
 

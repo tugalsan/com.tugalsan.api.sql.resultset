@@ -108,7 +108,7 @@ public class TS_SQLResultSet {
         }
 
         public String command() {
-            return TGS_UnSafe.call(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.concat("Error on ", d.className, " ", e.getMessage()));
+            return TGS_UnSafe.call(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.cmn().concat("Error on ", d.className, " ", e.getMessage()));
         }
     }
 
