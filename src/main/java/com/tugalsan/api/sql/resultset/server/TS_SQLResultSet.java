@@ -1,8 +1,8 @@
 package com.tugalsan.api.sql.resultset.server;
 
 
-import com.tugalsan.api.callable.client.TGS_CallableType1Void;
-import com.tugalsan.api.callable.client.TGS_CallableType2Void;
+import com.tugalsan.api.callable.client.TGS_CallableType1_Run;
+import com.tugalsan.api.callable.client.TGS_CallableType2_Run;
 import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.sql.cell.client.*;
@@ -55,7 +55,7 @@ public class TS_SQLResultSet {
     final public Time time;
     final public Obj obj;
 
-    public void walkCols(TGS_CallableType1Void<TS_SQLResultSet> onEmpty, TGS_CallableType1Void<Integer> ci) {
+    public void walkCols(TGS_CallableType1_Run<TS_SQLResultSet> onEmpty, TGS_CallableType1_Run<Integer> ci) {
         if (col.isEmpty()) {
             if (onEmpty != null) {
                 onEmpty.run(this);
@@ -67,7 +67,7 @@ public class TS_SQLResultSet {
         });
     }
 
-    public void walkRows(TGS_CallableType1Void<TS_SQLResultSet> onEmpty, TGS_CallableType1Void<Integer> ri) {
+    public void walkRows(TGS_CallableType1_Run<TS_SQLResultSet> onEmpty, TGS_CallableType1_Run<Integer> ri) {
         if (row.isEmpty()) {
             if (onEmpty != null) {
                 onEmpty.run(this);
@@ -80,7 +80,7 @@ public class TS_SQLResultSet {
         });
     }
 
-    public void walkCells(TGS_CallableType1Void<TS_SQLResultSet> onEmpty, TGS_CallableType2Void<Integer, Integer> ri_ci) {
+    public void walkCells(TGS_CallableType1_Run<TS_SQLResultSet> onEmpty, TGS_CallableType2_Run<Integer, Integer> ri_ci) {
         if (row.isEmpty()) {
             if (onEmpty != null) {
                 onEmpty.run(this);
