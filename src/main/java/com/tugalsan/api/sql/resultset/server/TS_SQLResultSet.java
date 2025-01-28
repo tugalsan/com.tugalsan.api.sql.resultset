@@ -1,6 +1,5 @@
 package com.tugalsan.api.sql.resultset.server;
 
-
 import com.tugalsan.api.function.client.TGS_Func_In1;
 import com.tugalsan.api.function.client.TGS_Func_In2;
 import com.tugalsan.api.list.client.*;
@@ -8,6 +7,7 @@ import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.sql.cell.client.*;
 import com.tugalsan.api.sql.col.typed.client.*;
 import com.tugalsan.api.string.client.*;
+import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
 import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.unsafe.client.*;
 import java.sql.*;
@@ -359,19 +359,22 @@ public class TS_SQLResultSet {
         }
         final private TS_SQLResultSet resultSet;
 
-        public List<List<TGS_SQLCellAbstract>> get() {
-            return get(false);
+        public List<List<TGS_SQLCellAbstract>> get(TS_ThreadSyncTrigger servletKillTrigger) {
+            return get(servletKillTrigger, false);
         }
 
-        public List<List<TGS_SQLCellAbstract>> get(boolean skipTypeBytes) {
+        public List<List<TGS_SQLCellAbstract>> get(TS_ThreadSyncTrigger servletKillTrigger, boolean skipTypeBytes) {
             List<List<TGS_SQLCellAbstract>> table = TGS_ListUtils.of();
             if (resultSet.row.isEmpty()) {
                 return table;
             }
             var size = resultSet.row.size();
-            IntStream.range(0, size).forEachOrdered(ri -> {
+            for (var ri = 0; ri < size; ri++) {
+                if (servletKillTrigger.hasTriggered()) {
+                    return table;
+                }
                 table.add(resultSet.row.get(ri, skipTypeBytes));
-            });
+            }
             return table;
         }
 
