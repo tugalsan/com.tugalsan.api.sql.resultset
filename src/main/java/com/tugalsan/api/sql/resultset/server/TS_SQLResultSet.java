@@ -1,7 +1,8 @@
 package com.tugalsan.api.sql.resultset.server;
 
-import com.tugalsan.api.function.client.TGS_Func_In1;
-import com.tugalsan.api.function.client.TGS_Func_In2;
+import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
+import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE_In1;
+import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE_In2;
 import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.sql.cell.client.*;
@@ -9,7 +10,7 @@ import com.tugalsan.api.sql.col.typed.client.*;
 import com.tugalsan.api.string.client.*;
 import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
 import com.tugalsan.api.time.client.*;
-import com.tugalsan.api.unsafe.client.*;
+
 import java.sql.*;
 import java.util.*;
 import java.util.stream.*;
@@ -55,7 +56,7 @@ public class TS_SQLResultSet {
     final public Time time;
     final public Obj obj;
 
-    public void walkCols(TGS_Func_In1<TS_SQLResultSet> onEmpty, TGS_Func_In1<Integer> ci) {
+    public void walkCols(TGS_FuncMTUCE_In1<TS_SQLResultSet> onEmpty, TGS_FuncMTUCE_In1<Integer> ci) {
         if (col.isEmpty()) {
             if (onEmpty != null) {
                 onEmpty.run(this);
@@ -67,7 +68,7 @@ public class TS_SQLResultSet {
         });
     }
 
-    public void walkRows(TGS_Func_In1<TS_SQLResultSet> onEmpty, TGS_Func_In1<Integer> ri) {
+    public void walkRows(TGS_FuncMTUCE_In1<TS_SQLResultSet> onEmpty, TGS_FuncMTUCE_In1<Integer> ri) {
         if (row.isEmpty()) {
             if (onEmpty != null) {
                 onEmpty.run(this);
@@ -80,7 +81,7 @@ public class TS_SQLResultSet {
         });
     }
 
-    public void walkCells(TGS_Func_In1<TS_SQLResultSet> onEmpty, TGS_Func_In2<Integer, Integer> ri_ci) {
+    public void walkCells(TGS_FuncMTUCE_In1<TS_SQLResultSet> onEmpty, TGS_FuncMTUCE_In2<Integer, Integer> ri_ci) {
         if (row.isEmpty()) {
             if (onEmpty != null) {
                 onEmpty.run(this);
@@ -108,7 +109,7 @@ public class TS_SQLResultSet {
         }
 
         public String command() {
-            return TGS_UnSafe.call(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.cmn().concat("Error on ", d.className, " ", e.getMessage()));
+            return TGS_FuncMTCEUtils.call(() -> resultSet.resultSet.getStatement().toString(), e -> TGS_StringUtils.cmn().concat("Error on ", d.className, " ", e.getMessage()));
         }
     }
 
